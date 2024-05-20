@@ -56,3 +56,16 @@ build/
 ### VS Code ###
 .vscode/
 
+### This repo ###
+.cache
+.dap-breakpoints
+.lsp-session-v1
+cache/
+elpa/
+emacs-configuration.el
+eshell/
+recentf
+request/
+transient/
+workspace/
+projects

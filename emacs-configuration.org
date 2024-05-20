@@ -1,6 +1,7 @@
-#+TITLE: Java Programming in Emacs
+#+STARTUP: overview
+#+TITLE: Init File in Literate Programming Style
 * Introduction
-  This configuration file contains setup of Emacs packages for Language Server Protocol (LSP). I will use ~use-package~ for package management.
+  This configuration file contains setup of Emacs packages for Language Server Protocol (LSP). I will use ~use-package~ for package management. Refer [[https://xpressrazor.wordpress.com/2020/11/04/java-programming-in-emacs/][Xpressrazor blog]]
 * Setup
   Since this is an org file, I am using ~org-babel-load-file~ command to load this file from [[init.el]] file. Emacs loads [[init.el]] when it starts. I have setup a variable called ~EMACS_DIR~ to point to *.emacs.d* as the setup directory. Adjust it to match your system. To speed up loading time of emacs, I have ~used gc-cons-threshold~ and ~gc-cons-percentage~ variables, before and after loading this configuration file. I have set ~gc-cons-threshold~ value to 300 mb after startup. Adjust it to comfortable value according to memory in your system. ~lsp-java~ package however has ~1GB~ setup as default.
 
@@ -52,52 +53,56 @@ In some operating systems Emacs does not load environment variables properly. Th
 Here, I add some basic emacs setup like loading the language, disabling the toolbar, setting up backup directory etc. I have added comments to each setting.
 
 #+BEGIN_SRC emacs-lisp
-;; Disable annoying ring-bell when backspace key is pressed in certain situations
-(setq ring-bell-function 'ignore)
+  ;; Disable annoying ring-bell when backspace key is pressed in certain situations
+  (setq ring-bell-function 'ignore)
 
-;; Disable scrollbar and toolbar
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
+  ;; Disable scrollbar and toolbar
+  ;; more readable :)
+  (when (display-graphic-p)
+	(scroll-bar-mode -1)
+	(tool-bar-mode -1))
 
-;; Set language environment to UTF-8
-(set-language-environment "UTF-8")
-(set-default-coding-systems 'utf-8)
+  (menu-bar-mode -1)
 
-;; Longer whitespace, otherwise syntax highlighting is limited to default column
-(setq whitespace-line-column 1000) 
+  ;; Set language environment to UTF-8
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
 
-;; Enable soft-wrap
-(global-visual-line-mode 1)
+  ;; Longer whitespace, otherwise syntax highlighting is limited to default column
+  (setq whitespace-line-column 1000) 
 
-;; Maintain a list of recent files opened
-(recentf-mode 1)            
-(setq recentf-max-saved-items 50)
+  ;; Enable soft-wrap
+  (global-visual-line-mode 1)
 
-;; Move all the backup files to specific cache directory
-;; This way you won't have annoying temporary files starting with ~(tilde) in each directory
-;; Following setting will move temporary files to specific folders inside cache directory in EMACS_DIR
+  ;; Maintain a list of recent files opened
+  (recentf-mode 1)            
+  (setq recentf-max-saved-items 50)
 
-(setq user-cache-directory (concat EMACS_DIR "cache"))
-(setq backup-directory-alist `(("." . ,(expand-file-name "backups" user-cache-directory)))
-      url-history-file (expand-file-name "url/history" user-cache-directory)
-      auto-save-list-file-prefix (expand-file-name "auto-save-list/.saves-" user-cache-directory)
-      projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" user-cache-directory))
+  ;; Move all the backup files to specific cache directory
+  ;; This way you won't have annoying temporary files starting with ~(tilde) in each directory
+  ;; Following setting will move temporary files to specific folders inside cache directory in EMACS_DIR
 
-;; Org-mode issue with src block not expanding
-;; This is a fix for bug in org-mode where <s TAB does not expand SRC block
-(when (version<= "9.2" (org-version))
-(require 'org-tempo))
+  (setq user-cache-directory (concat EMACS_DIR "cache"))
+  (setq backup-directory-alist `(("." . ,(expand-file-name "backups" user-cache-directory)))
+		url-history-file (expand-file-name "url/history" user-cache-directory)
+		auto-save-list-file-prefix (expand-file-name "auto-save-list/.saves-" user-cache-directory)
+		projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" user-cache-directory))
 
-;; Coding specific setting
+  ;; Org-mode issue with src block not expanding
+  ;; This is a fix for bug in org-mode where <s TAB does not expand SRC block
+  (when (version<= "9.2" (org-version))
+	(require 'org-tempo))
 
-;; Automatically add ending brackets and braces
-(electric-pair-mode 1)
+  ;; Coding specific setting
 
-;; Make sure tab-width is 4 and not 8
-(setq-default tab-width 4)
+  ;; Automatically add ending brackets and braces
+  (electric-pair-mode 1)
 
-;; Highlight matching brackets and braces
-(show-paren-mode 1) 
+  ;; Make sure tab-width is 4 and not 8
+  (setq-default tab-width 4)
+
+  ;; Highlight matching brackets and braces
+  (show-paren-mode 1) 
 #+END_SRC
 
 * Looks
@@ -145,27 +150,29 @@ If you press F6 key in your keyboard, it should switch between doom-palenight an
 ** Key-Chord
    Key-Chord allows us to bind regular keyboard keys for various commands without having to use prefix keys such as Ctrl, Alt or Super etc.
 
-#+begin_src emacs-lisp
+//All commented out
 (use-package use-package-chords
 :ensure t
 :init 
 :config (key-chord-mode 1)
-(setq key-chord-two-keys-delay 0.4)
-(setq key-chord-one-key-delay 0.5) ; default 0.2
+(setq key-chord-two-keys-delay 0.2)
+(setq key-chord-one-key-delay 0.2) ; default 0.2
 )
-#+end_src
+
 Here, we changed the delay for the consecutive key to be little higher than default. Adjust this to what you feel comfortable.
 
 ** Projectile
    Projectile helps us with easy navigation within a project. Projectile recognizes several source control managed folders e.g *git, mercurial, maven, sbt*, and a folder with empty *.projectile* file. You can use ~C-c p~ to invoke any projectile command. This is a very useful key to remember.
 
 #+begin_src emacs-lisp
-(use-package projectile 
-:ensure t
-:init (projectile-mode +1)
-:config 
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-)   
+  (use-package projectile 
+   :ensure t
+   :init
+   (projectile-mode +1)
+   (setq projectile-create-missing-test-files t)
+   :config 
+   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+   )   
 #+end_src
 ** Helm
 Helm allows for easy completion of commands. Below, we will replace several of the built in functions with helm versions and add keyboard shortcuts for couple of new useful commands.
@@ -205,9 +212,6 @@ Helm swoop allows to quickly search for text under cursor or new text within cur
 #+begin_src emacs-lisp
 (use-package helm-swoop 
 :ensure t
-:chords
-("js" . helm-swoop)
-("jp" . helm-swoop-back-to-last-point)
 :init
 (bind-key "M-m" 'helm-swoop-from-isearch isearch-mode-map)
 
@@ -237,11 +241,7 @@ Helm swoop allows to quickly search for text under cursor or new text within cur
 
 #+begin_src emacs-lisp
 (use-package avy 
-:ensure t
-:chords
-("jc" . avy-goto-char)
-("jw" . avy-goto-word-1)
-("jl" . avy-goto-line))
+:ensure t)
 #+end_src
 
 ** Which Key
@@ -261,6 +261,48 @@ We can use quickrun package to execute code (if it has main). E.g. If you have a
 :bind ("C-c r" . quickrun))
 #+end_src
 
+** Magit
+#+begin_src emacs-lisp
+(use-package magit
+  :ensure t
+  :bind ("C-x g" . magit-status))
+#+end_src
+
+** web-mode
+#+begin_src emacs-lisp
+
+  (use-package web-mode
+	:ensure t
+	:config
+	(add-to-list 'auto-mode-alist '("\\.html$" . web-mode))
+	(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+	(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+	(setq web-mode-engines-alist '(("go" . "\\.html\\'")))
+	(setq web-mode-ac-sources-alist
+		  '(("css" . (ac-source-css-property))
+			("html" . (ac-source-words-in-buffer ac-source-abbrev))))
+	(setq web-mode-enable-auto-closing t)
+	(setq web-mode-enable-auto-quoting t))
+#+end_src
+** org-mode
+#+begin_src emacs-lisp
+  (require 'org)
+  (define-key global-map "\C-cl" 'org-store-link)
+  (define-key global-map "\C-ca" 'org-agenda)
+  (setq org-agenda-files (list "~/Library/Mobile Documents/com~apple~CloudDocs/org/work.org"
+							   "~/Library/Mobile Documents/com~apple~CloudDocs/org/personal.org"
+							   "~/Library/Mobile Documents/com~apple~CloudDocs/org/events.org"))
+  (setq org-todo-keywords
+		'((sequence "TODO" "WAITING" "DONE")))
+#+end_src
+** emacs-gradle-mode
+#+begin_src emacs-lisp
+  (use-package gradle-mode
+	:ensure t 
+	:init
+	(gradle-mode)
+	)
+#+end_src
 * Language Server Protocol (LSP)
   With above setup done, below we will setup several packages closely related to LSP.
 
@@ -311,17 +353,19 @@ Emacs Debug Adapter Protocol aka DAP Mode allows us to debug your program. Below
 ** Treemacs
 Treemacs provides UI elements used for LSP UI. Let's install lsp-treemacs and its dependency treemacs. We will also Assign ~M-9~ to show error list.
 #+begin_src emacs-lisp
-(use-package lsp-treemacs
-  :after (lsp-mode treemacs)
-  :ensure t
-  :commands lsp-treemacs-errors-list
-  :bind (:map lsp-mode-map
-         ("M-9" . lsp-treemacs-errors-list)))
+  (use-package lsp-treemacs
+	:after (lsp-mode treemacs)
+	:ensure t
+	:commands lsp-treemacs-errors-list
+	:bind (:map lsp-mode-map
+		   ("M-9" . lsp-treemacs-errors-list)))
 
-(use-package treemacs
-  :ensure t
-  :commands (treemacs)
-  :after (lsp-mode))
+
+
+  (use-package treemacs
+	:ensure t
+	:commands (treemacs)
+	:after (lsp-mode))
 #+end_src
 
 ** LSP UI
@@ -356,14 +400,14 @@ LSP's built in symbol explorer uses ~xref-find-apropos~ to provide symbol naviga
 #+end_src
 
 ** Install LSP Package
-Let's install the main package for lsp. Here we will integrate lsp with which-key. This way, when we type the prefix key ~C-c l~ we get additional help for completing the command. 
+Let's install the main package for lsp. Here we will integrate lsp with which-key. This way, when we type the prefix key ~C-c l~ we get additional help for completing the command. Also add hook for java and golang to start lsp in deferred mode
 
 #+begin_src emacs-lisp
 (use-package lsp-mode
 :ensure t
 :hook (
    (lsp-mode . lsp-enable-which-key-integration)
-   (java-mode . #'lsp-deferred)
+   ((java-mode go-mode ruby-mode) . #'lsp-deferred)
 )
 :init (setq 
     lsp-keymap-prefix "C-c l"              ; this is for which-key integration documentation, need to use lsp-mode-map
@@ -384,11 +428,101 @@ You can start LSP server in a java project by using ~C-c l s s~. Once you type ~
 
 ** LSP Java
 This is the package that handles server installation and session management.
+Remove advice-add and init if there are issues
 #+begin_src  emacs-lisp
-(use-package lsp-java 
-:ensure t
-:config (add-hook 'java-mode-hook 'lsp))
+  (use-package lsp-java 
+	:ensure t
+	:config
+	(add-hook 'java-mode-hook 'lsp)
+	(advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
+	:init (setq lsp-java-vmargs '("-XX:+UseParallelGC" "-XX:GCTimeRatio=4" "-XX:AdaptiveSizePolicyWeight=90" "-Dsun.zip.disableMemoryMapping=true" "-Xmx2G" "-Xms100m")
+				))
 #+end_src
+
+
+** LSP Go
+#+begin_src  emacs-lisp
+  (use-package go-mode
+	:ensure t
+	:mode "\\.go\\'"
+	:config
+	(defun my/go-mode-setup ()
+	  "Basic Go mode setup."
+	  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+	  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+	(add-hook 'go-mode-hook #'my/go-mode-setup))
+#+end_src
+
+** LSP Ruby
+#+begin_src  emacs-lisp
+#+end_src
+
+* Custom Functions & Keyboard bindings
+** Custom functions
+*** Open Skyscanner Clock (renamed to work.org) file - TODO list
+#+begin_src  emacs-lisp
+(defun my-work ()
+  "Open the clock file."
+  (interactive)
+  (find-file "~/Library/Mobile Documents/com~apple~CloudDocs/org/work.org"))
+#+end_src
+*** Open personal todo list in org
+#+begin_src  emacs-lisp
+(defun my-personal ()
+  "Open personal todo"
+  (interactive)
+  (find-file "~/Library/Mobile Documents/com~apple~CloudDocs/org/personal.org"))
+#+end_src
+
+*** Open emacs shortcut key file
+#+begin_src  emacs-lisp
+(defun my-key ()
+  "Open the emacs keyboard shortcut file."
+  (interactive)
+  (find-file "~/Library/Mobile Documents/com~apple~CloudDocs/skyscanner/emacs.org"))
+#+end_src
+
+*** Open emacs init
+#+begin_src  emacs-lisp
+(defun my-init ()
+  "Open the emacs keyboard shortcut file."
+  (interactive)
+  (find-file "~/.emacs.d/emacs-configuration.org"))
+#+end_src
+
+*** Open Birthdays
+#+begin_src  emacs-lisp
+(defun my-events ()
+  "Open the emacs keyboard shortcut file."
+  (interactive)
+  (find-file "~/Library/Mobile Documents/com~apple~CloudDocs/org/events.org"))
+#+end_src
+
+*** Duplicate line
+#+begin_src emacs-lisp
+(defun duplicate-line()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (open-line 1)
+  (next-line 1)
+  (yank)
+)
+(global-set-key (kbd "C-d") 'duplicate-line)
+#+end_src
+
+** Custom keyboard bindings
+#+begin_src  emacs-lisp
+(setq ns-alternate-modifier 'meta)
+(setq ns-right-alternate-modifier 'none)
+(global-set-key (kbd "C-x <up>") 'windmove-up)
+(global-set-key (kbd "C-x <down>") 'windmove-down)
+(global-set-key (kbd "C-x <right>") 'windmove-right)
+(global-set-key (kbd "C-x <left>") 'windmove-left)
+#+end_src
+
+
 
 * Conclusion
 Go through [[https://github.com/emacs-lsp/lsp-java#supported-commands][Supported commands]] section of lsp-java github page to see commands provided in lsp-mode. Most of these commands are available under lsp's ~C-c l~ option. I hope this configuration file was useful.
