@@ -277,6 +277,7 @@ We can use quickrun package to execute code (if it has main). E.g. If you have a
 	(add-to-list 'auto-mode-alist '("\\.html$" . web-mode))
 	(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 	(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+	(add-to-list 'auto-mode-alist '("\\.tmpl\\'" . web-mode))
 	(setq web-mode-engines-alist '(("go" . "\\.html\\'")))
 	(setq web-mode-ac-sources-alist
 		  '(("css" . (ac-source-css-property))
@@ -303,6 +304,40 @@ We can use quickrun package to execute code (if it has main). E.g. If you have a
 	(gradle-mode)
 	)
 #+end_src
+** Add straight
+#+begin_src emacs-lisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+#+end_src 
+** copilot
+#+begin_src emacs-lisp
+	(use-package copilot
+	  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+	  :ensure t)
+
+  (add-hook 'prog-mode-hook 'copilot-mode)
+  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+  (add-to-list 'copilot-major-mode-alist '("enh-ruby" . "ruby"))
+
+#+end_src
+
+** gptel
+
 * Language Server Protocol (LSP)
   With above setup done, below we will setup several packages closely related to LSP.
 
@@ -520,6 +555,8 @@ Remove advice-add and init if there are issues
 (global-set-key (kbd "C-x <down>") 'windmove-down)
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 (global-set-key (kbd "C-x <left>") 'windmove-left)
+(global-set-key (kbd "C-c RET") 'gptel-send)
+(global-set-key (kbd "C-c c") 'gptel-send)
 #+end_src
 
 
